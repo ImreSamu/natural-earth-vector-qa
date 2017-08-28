@@ -1,0 +1,10 @@
+
+version: '2'
+
+services:
+
+  nearth_qa:
+    image: nearth_qa
+    volumes:
+     - ./:/osm
+     
