@@ -66,7 +66,8 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
             ?placeDescription
             ?countryLabel
             (SAMPLE(?sistercity) as ?sistercity_sample)
-            (MIN(?distance)      as ?distance )
+            (MIN(?distance)      as ?distance   )
+            (MAX(?population)    as ?population )
             # (group_concat(distinct ?placeAlternative ; separator = "#") as ?placeAlternative_group)
             (group_concat(distinct ?GeoNames_ID        ; separator = "#") as ?GeoNames_ID_grp)
             (group_concat(distinct SUBSTR(STR(?placetype),STRLEN("http://www.wikidata.org/entity/")+1); separator = "#")
@@ -87,9 +88,10 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
                 bd:serviceParam wikibase:distance ?distance.
             }
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-            OPTIONAL { ?place wdt:P17   ?country. }
+            OPTIONAL { ?place wdt:P17   ?country.     }
             OPTIONAL { ?place wdt:P1566 ?GeoNames_ID. }
-            OPTIONAL { ?place wdt:P190  ?sistercity. }
+            OPTIONAL { ?place wdt:P190  ?sistercity.  }
+            OPTIONAL { ?place wdt:P1082 ?population . }
             # OPTIONAL { ?place skos:altLabel ?placeAlternative . }
         }
         GROUP BY ?place ?placeLabel   ?placeDescription ?countryLabel
