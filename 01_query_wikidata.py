@@ -34,6 +34,7 @@ c.execute('''CREATE TABLE wd
                 ne_wikidataid text,
                 wd_id text,
                 wd_label text,
+                wd_description text,
                 wd_countrylabel text,
                 wd_location text,
                 wd_geonames_id_grp text,
@@ -117,6 +118,11 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
         else:
             wd_label = ''
 
+        if 'placeDescription' in result:
+            wd_description = result['placeDescription']['value']
+        else:
+            wd_description = ''
+
         if 'countryLabel' in result:
             wd_countrylabel = result['countryLabel']['value']
         else:
@@ -198,7 +204,7 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
             _wikidata_status=''
 
 
-        c.execute("INSERT INTO wd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        c.execute("INSERT INTO wd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                         ne_xid,
                         ne_fid,
@@ -210,6 +216,7 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
                         ne_wikidataid,
                         wd_id,
                         wd_label,
+                        wd_description,
                         wd_countrylabel,
                         wd_location,
                         wd_geonames_id_grp,

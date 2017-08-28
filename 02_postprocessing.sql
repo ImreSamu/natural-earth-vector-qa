@@ -19,10 +19,10 @@ SELECT wd_maxscore.ne_xid      as ne_xid
       ,wd.ne_wikidataid        as ne_wikidataid
       ,wd_maxscore.max_score   as max_score
 	  ,CASE
-	     WHEN wd_maxscore.max_score >= 120 THEN "S1-Very good match       ( _score > 120) "
-	     WHEN wd_maxscore.max_score >=  90 THEN "S2-Good match            ( 90    -  120) "
-	     WHEN wd_maxscore.max_score >=  40 THEN "S3-Maybe                 ( 40    -   90) "
-		 ELSE                                   "S4-Not found in wikidata ( score <   40) "
+			WHEN wd_maxscore.max_score >= 120 THEN "S1-Very good match       ( _score > 120) "
+			WHEN wd_maxscore.max_score >=  90 THEN "S2-Good match            ( 90    -  120) "
+			WHEN wd_maxscore.max_score >=  40 THEN "S3-Maybe                 ( 40    -   90) "
+			ELSE                                   "S4-Not found in wikidata ( score <   40) "
 		END AS _status
 	  ,wd.wd_id    as wd_id
 	  ,wd.wd_label as wd_label
