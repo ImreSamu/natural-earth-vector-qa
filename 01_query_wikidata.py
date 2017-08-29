@@ -39,12 +39,15 @@ c.execute('''CREATE TABLE wd
                 wd_location text,
                 wd_geonames_id_grp text,
                 wd_placetype_grp text,
+                wd_place_alternative_grp text,
                 wd_has_sistercity text,
+                wd_population text,
                 wd_distance real,
                 _score real,
                 _name_status text,
                 _geonames_status text,
                 _wikidata_status text,
+                _in_altnames text,
                 _lev_ratio real,
                 _lev_distance real,
                 _lev_jaro real,
@@ -68,8 +71,8 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
             (SAMPLE(?sistercity) as ?sistercity_sample)
             (MIN(?distance)      as ?distance   )
             (MAX(?population)    as ?population )
-            # (group_concat(distinct ?placeAlternative ; separator = "#") as ?placeAlternative_group)
-            (group_concat(distinct ?GeoNames_ID        ; separator = "#") as ?GeoNames_ID_grp)
+            (group_concat(distinct ?place_alternative ; separator = "#") as ?place_alternative_grp)
+            (group_concat(distinct ?GeoNames_ID       ; separator = "#") as ?GeoNames_ID_grp)
             (group_concat(distinct SUBSTR(STR(?placetype),STRLEN("http://www.wikidata.org/entity/")+1); separator = "#")
                     as ?placetype_grp)
 
@@ -79,7 +82,15 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
                                 wd:Q3957
                                 wd:Q486972
                                 }
-            ?place (wdt:P31/wdt:P279*) ?placetype.
+
+             {   
+                ?place     (wdt:P31/wdt:P279*) ?placetype. 
+             }
+            UNION
+             {   
+                ?citylist   wdt:P360 wd:Q515 .
+                ?place     (wdt:P31/wdt:P279*) ?citylist .
+             }
 
             SERVICE wikibase:around {
                 ?place wdt:P625 ?location.
@@ -88,11 +99,13 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
                 bd:serviceParam wikibase:distance ?distance.
             }
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-            OPTIONAL { ?place wdt:P17   ?country.     }
-            OPTIONAL { ?place wdt:P1566 ?GeoNames_ID. }
-            OPTIONAL { ?place wdt:P190  ?sistercity.  }
-            OPTIONAL { ?place wdt:P1082 ?population . }
-            # OPTIONAL { ?place skos:altLabel ?placeAlternative . }
+            OPTIONAL { ?place wdt:P17       ?country.     }
+            OPTIONAL { ?place wdt:P1566     ?GeoNames_ID. }
+            OPTIONAL { ?place wdt:P190      ?sistercity.  }
+            OPTIONAL { ?place wdt:P1082     ?population . }
+            OPTIONAL { ?place skos:altLabel ?place_alternative .
+                        FILTER((LANG(?place_alternative)) = "en") 
+                     }
         }
         GROUP BY ?place ?placeLabel   ?placeDescription ?countryLabel
         ORDER BY ?placeLabel
@@ -140,12 +153,30 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
         else:
             wd_geonames_id_grp=''
 
+        if 'population' in result:
+            wd_population = result['population']['value']
+            if wd_population!='':
+                _score+=8
+        else:
+            wd_population=''
 
         if 'placetype_grp' in result:
             wd_placetype_grp="#"+result['placetype_grp']['value']+"#"
         else:
             wd_placetype_grp=''
 
+
+        if 'place_alternative_grp' in result:
+            wd_place_alternative_grp="#"+result['place_alternative_grp']['value']+"#"
+        else:
+            wd_place_alternative_grp=''
+
+
+        if ('#'+ne_name+'#' in wd_place_alternative_grp)  :
+            _in_altnames='Y'
+            _score+=42
+        else:
+            _in_altnames='N'
 
         wd_has_sistercity=""
         if ('sistercity_sample' in result):
@@ -177,6 +208,7 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
             _score+=90
         else:
             _name_status=''
+
             if _lev_jaro_winkler> 0.9 :
                 _score+=50
             elif _lev_jaro_winkler> 0.8 :
@@ -184,17 +216,20 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
 
 
         if ne_geonameid != '' and ('#'+ne_geonameid+'#' in wd_geonames_id_grp)  :
-            _geonames_status='OK'
+            _geonames_status='EQ'
             _score+=40
+        elif ne_geonameid != '' and ne_geonameid!='##' and ('#'+ne_geonameid+'#' not in wd_geonames_id_grp)  :
+            _geonames_status='NE'
+            _score+=40            
         else:
-            _geonames_status=''
+            _geonames_status='MI'
 
 
         if (ne_wikidataid != '' ) and (wd_id !='' ) and (ne_wikidataid==wd_id):
             _wikidata_status='EQ'
             _score+=20
         elif (ne_wikidataid != '' ) and (wd_id !='' ):
-            _wikidata_status='DIFF'
+            _wikidata_status='NE'
 
             # smaller wikidataid is sometimes better
             if float(  ne_wikidataid[1:]) > float(wd_id[1:]):
@@ -203,10 +238,10 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
                 _score-=3
 
         else:
-            _wikidata_status=''
+            _wikidata_status='MI'
 
 
-        c.execute("INSERT INTO wd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        c.execute("INSERT INTO wd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                         ne_xid,
                         ne_fid,
@@ -223,12 +258,15 @@ def getwikidatacity(ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid, ne_name ,ne_a
                         wd_location,
                         wd_geonames_id_grp,
                         wd_placetype_grp,
+                        wd_place_alternative_grp,
                         wd_has_sistercity,
+                        wd_population,
                         wd_distance,
                         _score,
                         _name_status,
                         _geonames_status,
                         _wikidata_status,
+                        _in_altnames, 
                         _lev_ratio,
                         _lev_distance,
                         _lev_jaro,
@@ -258,7 +296,7 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
             ne_ls_name=pt['properties']['LS_NAME']
             ne_geonameid=str(pt['properties']['GEONAMEID']).split('.')[0]
 
-            ne_xid=ne_fid + '|' + ne_name + '|' + ne_adm0name + '|' + ne_adm1name + '|' + ne_ls_name
+            ne_xid=ne_fid + '#' + ne_name + '#' + ne_adm0name + '#' + ne_adm1name + '#' + ne_ls_name
 
             if param_adm0name!='' and param_adm0name!=ne_adm0name:
                 continue

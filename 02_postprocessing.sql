@@ -5,33 +5,41 @@ CREATE INDEX IF NOT EXISTS  wd_index  ON wd ( ne_xid );
 
 DROP TABLE IF EXISTS wd_maxscore;
 CREATE TABLE wd_maxscore AS
-	SELECT ne_xid, MAX(_score) as max_score
-	FROM wd
-	GROUP BY ne_xid
-	ORDER BY ne_xid
-;
-CREATE UNIQUE INDEX IF NOT EXISTS  ne_xid_index  ON wd_maxscore ( ne_xid );
+select  *
+from    wd wd1
+where   ne_xid || '@' || wd_id  in
+        (
+        select ne_xid || '@' || wd_id
+        from    wd wd2
+        where   ne_xid = wd1.ne_xid
+        order by _score desc
+        limit   1
+        )
+order by  ne_xid		
+;		
+
+DROP INDEX IF EXISTS wd_maxscore_index;
+CREATE UNIQUE INDEX  wd_maxscore_index  ON wd_maxscore ( ne_xid );
 
 
 DROP TABLE IF EXISTS wd_match;
 CREATE TABLE wd_match AS
-SELECT wd_maxscore.ne_xid      as ne_xid
-      ,wd.ne_wikidataid        as ne_wikidataid
-      ,wd_maxscore.max_score   as max_score
-	  ,CASE
-			WHEN wd_maxscore.max_score >= 120 THEN "S1-Very good match       ( _score > 120) "
-			WHEN wd_maxscore.max_score >=  90 THEN "S2-Good match            ( 90    -  120) "
-			WHEN wd_maxscore.max_score >=  40 THEN "S3-Maybe                 ( 40    -   90) "
-			ELSE                                   "S4-Not found in wikidata ( score <   40) "
+SELECT 
+	   CASE
+			WHEN _score >= 120 THEN "S1-Very good match       ( _score > 120) "
+			WHEN _score >=  90 THEN "S2-Good match            ( 90    -  120) "
+			WHEN _score >=  40 THEN "S3-Maybe                 ( 40    -   90) "
+			ELSE                    "S4-Not found in wikidata ( score <   40) "
 		END AS _status
-	  ,wd.wd_id    as wd_id
-	  ,wd.wd_label as wd_label
-	  ,wd._wikidata_status as _wikidata_status
-	  ,wd._geonames_status as _geonames_status
-	  ,wd.wd_distance      as wd_distance
+	  ,*
 FROM wd_maxscore
-     LEFT JOIN wd  ON  wd.ne_xid=wd_maxscore.ne_xid  AND wd._score=wd_maxscore.max_score
 ;
+
+DROP INDEX IF EXISTS wd_match_index;
+CREATE UNIQUE INDEX wd_match_index  ON wd_match ( ne_xid );
+
+
+
 
 .print ''
 .print '# Summary report v1'
