@@ -1,6 +1,9 @@
 # workfiles
 *.db 
 natural-earth-vector/*
+*.csv
+1342-candidates.*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
