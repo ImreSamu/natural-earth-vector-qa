@@ -212,6 +212,11 @@ CREATE VIEW           _wd_match_wikidataid_new AS
     FROM wd_match
     WHERE (_mstatus="F1_OK" or _mstatus="F2_GOOD") and _wikidata_status='Na';
 
+DROP   VIEW IF EXISTS _wd_match_wikidataid_validated;
+CREATE VIEW           _wd_match_wikidataid_validated AS
+    SELECT *
+    FROM wd_match
+    WHERE (_mstatus="F1_OK" or _mstatus="F2_GOOD") and _wikidata_status='EQ';
 
 DROP   VIEW IF EXISTS _wd_match_geodataname_diffs;
 CREATE VIEW           _wd_match_geodataname_diffs AS

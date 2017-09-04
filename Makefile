@@ -30,12 +30,13 @@ clean:
 	rm -f wikidata_naturalearth_qa.db
 
 export:	
-	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM wd_match;"           			> _wd_match.csv
-	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_f1_ok;"    			> _wd_match_f1_ok.csv
-	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_f2_good;"  			> _wd_match_f2_good.csv
-	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_f3_maybe;" 			> _wd_match_f3_maybe.csv
-	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_diffs;"  > _wd_match_wikidataid_diffs.csv
-	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_new;"    > _wd_match_wikidataid_new.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM wd_match;"           			    > _wd_match.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_f1_ok;"    			    > _wd_match_f1_ok.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_f2_good;"  			    > _wd_match_f2_good.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_f3_maybe;" 			    > _wd_match_f3_maybe.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_diffs;"      > _wd_match_wikidataid_diffs.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_new;"        > _wd_match_wikidataid_new.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_validated;"  > _wd_match_wikidataid_validated.csv
 
 hun-testparallel:
 	docker-compose run --rm nearth_qa parallel -k -j5 python3 -u /osm/01_query_wikidata.py -filter_adm0name="Hungary"  -filter_parallel_id={} ::: 0 1 2 3 4 5 6 7 8 9
