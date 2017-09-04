@@ -654,7 +654,7 @@ os.system("chmod 666 "+args.database_name)
 
 if args.filter_parallel_id=='':
     print (' - Postprocessing -')
-    os.system(" sqlite3 "+args.database_name+" < 02_postprocessing.sql " )
+    os.system(" sqlite3 "+args.database_name+" < 05_postprocessing.sql " )
 
     if args.filter_name!=''  or args.filter_fid!='':
         os.system("""  sqlite3 -line """ +args.database_name+ """    " select * from wd_match;  "     """ )

@@ -119,10 +119,10 @@ DROP VIEW IF EXISTS wd_match;
 CREATE VIEW wd_match AS
 SELECT 
 	    CASE
-			WHEN _score > 120 and  _top20percent_n=1  and  wd_distance < 20   THEN  "F1_OK"       
-			WHEN _score > 90  and wd_distance < 50                            THEN  "F2_GOOD"           
-			WHEN _score > 60                                                  THEN  "F3_MAYBE"                                
-            ELSE                                                                    "F9_BAD"
+			WHEN _score > 120 and wd_sitelink_en!='' and  _top20percent_n=1  and  wd_distance < 20   THEN  "F1_OK"       
+			WHEN _score > 90  and wd_sitelink_en!='' and wd_distance < 50                            THEN  "F2_GOOD"           
+			WHEN _score > 60  and wd_sitelink_en!=''                                                 THEN  "F3_MAYBE"                                
+            ELSE                                                                                           "F9_BAD"
 		END AS _mstatus  
         ,
 	    CASE
