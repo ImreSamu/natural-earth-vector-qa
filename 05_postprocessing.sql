@@ -220,7 +220,7 @@ CREATE VIEW           _wd_match_geodataname_diffs AS
 
 
 
-DROP   VIEW IF EXISTS _1342_diffs ;
+DROP   TABLE IF EXISTS _1342_diffs ;
 CREATE TABLE          _1342_diffs AS
 SELECT candidates.fid, candidates.name, candidates.wd_wiki_id, 
        wd_match.wd_id, wd_match.wd_label, wd_match.wd_distance,  wd_match._score,   wd_match.wd_sitelink_en, wd_match.wd_description,wd_match.wd_type

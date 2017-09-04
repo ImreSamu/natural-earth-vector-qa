@@ -6,14 +6,12 @@ RUN apt-get update \
         curl \
         git \
         wget \
-        gdal-bin \
-        osmium-tool \
         sqlite3 \
         mc \
         nano \
         unzip \
+        parallel \
         sudo \
-        postgresql-client \
     && rm -rf /var/lib/apt/lists/
 
 RUN echo "install python libs" \

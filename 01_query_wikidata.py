@@ -7,30 +7,31 @@
 
 from SPARQLWrapper import SPARQLWrapper,  SPARQLExceptions, JSON
 from urllib.error import URLError, HTTPError
-
 from sys import argv
 
 
+import argparse
 import datetime
 import editdistance
 import fiona
 import jellyfish
 import Levenshtein
 import os
+import re
 import sqlite3
 import sys
 import time
 import unidecode
-import re
-
-import argparse
-
 
 param_adm0name=''
 
 print('parameter:', param_adm0name )
 
 parser = argparse.ArgumentParser(description='Search Natural-Earth places in Wikidata.')
+
+parser.add_argument('-filter_parallel_id',   default='',  help='filter by parallelisation ID (0-4) ')
+
+parser.add_argument('-filter_fid',   default='',  help='filter by internal FID value')
 parser.add_argument('-filter_name',   default='',  help='filter by NAME value')
 parser.add_argument('-filter_nameascii',   default='',  help='filter by NAMEASCII value')
 parser.add_argument('-filter_adm0name',   default='',  help='filter by ADM0NAME value')
@@ -42,20 +43,29 @@ parser.add_argument('-filter_iso_a2', default='',  help='filter by ISO_A2 value'
 parser.add_argument('--wikidataid_empty',    action="store_true",  help='processing empty wikidataid records ')
 parser.add_argument('--wikidataid_nonempty', action="store_true",  help='processing non-empty wikidataid records ')
 
+parser.add_argument('-database_name', default='wikidata_naturalearth_qa.db',  help='output sqlite3 database name')
+
 args = parser.parse_args()
 
 
+print( 'Start wikidata processing ... ')
 print( 'parmeter: ', args )
-print( 'filter_name: '      , args.filter_name       )
-print( 'filter_adm0name: '  , args.filter_adm0name   )
-print( 'filter_wikidataid: ', args.filter_wikidataid )
 
 
 
+max_parallel_queries=10
+if args.filter_parallel_id!='' and  int(args.filter_parallel_id) in (0,1,2,3,4,5,6,7,8,9) :
+    args.database_name = "_p"+args.filter_parallel_id + '_' + "wiki.db"
+    # automatically create log file .... 
+    sys.stdout = open(args.database_name+'.log', 'w')
+#else:
+    #print("Error:   Parallelisaton parameter should be 0,1,2,3,4")
+    #sys.exit(1) 
 
-os.system("rm -f wikidata_naturalearth_qa.db")
 
-conn = sqlite3.connect('wikidata_naturalearth_qa.db')
+os.system("rm -f "+args.database_name)
+
+conn = sqlite3.connect(args.database_name)
 c = conn.cursor()
 
 c.execute("DROP TABLE IF EXISTS wd ;")
@@ -259,27 +269,39 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
     retries = 0
     while results == None and retries < 5:
         try:
+            results = None
             sparql.setQuery(q)
-            #sparql.setTimeout(360)
+            sparql.setTimeout(1000)
             sparql.setReturnFormat(JSON)
             results = sparql.query().convert()
 
         except SPARQLExceptions.EndPointNotFound as e:
-            print("ERRwikidata-SPARQLExceptions-EndPointNotFound:  Retrying in 30 seconds." )
+            print("ERRwikidata-SPARQLExceptions-EndPointNotFound:  Retrying in 30 seconds.", flush=True )
             time.sleep(30)
             retries += 1
-        except SPARQLExceptions.EndPointInternalError as e:
-            print("ERRwikidata-SPARQLExceptions-EndPointInternalError: Retrying in 30 seconds." )
-            time.sleep(30)
-            retries += 1
-        except SPARQLExceptions.QueryBadFormed as e:
-            print("ERRwikidata-SPARQLExceptions-QueryBadFormed : Check!  "  ,  e )
-            return "error"
-        except HTTPError as e:
-            print("ERRwikidata: Got an HTTP Error while querying. Retrying in 30 seconds." )
-            time.sleep(30)
-            retries += 1
+            continue
 
+        except SPARQLExceptions.EndPointInternalError as e:
+            print("ERRwikidata-SPARQLExceptions-EndPointInternalError: Retrying in 30 seconds.", flush=True )
+            time.sleep(30)
+            retries += 1
+            continue
+
+        except TimeoutError:
+            print("ERRwikidata-SPARQLExceptions  TimeOut : Retrying in 1 seconds.", flush=True )
+            time.sleep(1)
+            retries += 1            
+            continue
+
+        except SPARQLExceptions.QueryBadFormed as e:
+            print("ERRwikidata-SPARQLExceptions-QueryBadFormed : Check!  "  ,  flush=True )
+            return "error"
+
+        except HTTPError as e:
+            print("ERRwikidata: Got an HTTP Error while querying. Retrying in 30 seconds.", flush=True )
+            time.sleep(30)
+            retries += 1
+            continue
 
 
     if results == None and retries >= 5:
@@ -518,7 +540,7 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
             ))
 
     conn.commit()
-
+    sys.stdout.flush()
     if max_score <= 30:
         print(" Low score .. stop ", max_score)
   
@@ -562,6 +584,8 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
 
             ne_xid=ne_fid + '#' + ne_name + '#' + ne_adm0name + '#' + ne_adm1name + '#' + ne_ls_name
 
+            if args.filter_fid!='' and args.filter_fid!=ne_fid:
+                continue
             if args.filter_name!='' and args.filter_name!=ne_name:
                 continue
             if args.filter_nameascii!='' and args.filter_nameascii!=ne_nameascii:
@@ -577,6 +601,7 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
             if args.filter_iso_a2!='' and args.filter_iso_a2!=ne_iso_a2:
                 continue
 
+                
 
             if args.wikidataid_empty and ne_wikidataid!='':
                 continue
@@ -587,7 +612,8 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
 
 
 
-
+            if args.filter_parallel_id!='' and    int(args.filter_parallel_id)  != ( int(ne_fid) % max_parallel_queries ) :
+                continue
 
 
             list_wikidataid=[]
@@ -603,7 +629,7 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
             print('2:',len(rc2_list_wikidataid) , _maxscore2)
 
 
-            if max(_maxscore1,_maxscore1)  < 140:
+            if max(_maxscore1,_maxscore2)  < 140:
                 rc3_list_wikidataid , _maxscore3 =getwikidatacity(3, rc2_list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid,ne_name,
                      ne_namealt,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale)
                 print('3:',len(rc3_list_wikidataid) , _maxscore3)
@@ -623,15 +649,20 @@ print (' - End -')
 
 conn.close()
 
-os.system("chmod 666 wikidata_naturalearth_qa.db")
+os.system("chmod 666 "+args.database_name)
 
-print (' - Postprocessing -')
-os.system(" sqlite3 wikidata_naturalearth_qa.db < 02_postprocessing.sql " )
 
-if args.filter_name!='':
-    os.system("""  sqlite3 -line wikidata_naturalearth_qa.db     " select * from wd_match;  "     """ )
+if args.filter_parallel_id=='':
+    print (' - Postprocessing -')
+    os.system(" sqlite3 "+args.database_name+" < 02_postprocessing.sql " )
 
-print (' - Status -')
-os.system("""  ./proc_report_freq.sh     "_status "     """ )
-print (' - Example end -')
+    if args.filter_name!=''  or args.filter_fid!='':
+        os.system("""  sqlite3 -line """ +args.database_name+ """    " select * from wd_match;  "     """ )
+
+    print (' - Status -')
+    os.system("""  ./proc_report_freq.sh     "_status "     """ )
+else:
+    os.system("""  sqlite3 -line """ +args.database_name+ """    " select count(*) as N from wd ;  "     """ )    
+
+print (' - JOB end -')
 
