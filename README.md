@@ -15,6 +15,8 @@ Work in progress ...
 ```bash
 git clone https://github.com/ImreSamu/natural-earth-vector-qa.git
 cd natural-earth-vector-qa
+make build
+make init
 make runparallel
 make export
 ```
