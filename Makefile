@@ -19,6 +19,9 @@ run:
 test:
 	docker-compose run --rm nearth_qa python3 /osm/01_query_wikidata.py  -filter_adm0name="Algeria"
 
+test-niagara-falls:
+	docker-compose run --rm nearth_qa python3 /osm/01_query_wikidata.py  -filter_name="Niagara Falls"
+
 postprocessing:
 	docker-compose run --rm nearth_qa sqlite3 wikidata_naturalearth_qa.db < 05_postprocessing.sql
 

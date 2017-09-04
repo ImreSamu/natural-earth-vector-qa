@@ -347,6 +347,11 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
 
         if 'countryLabel' in result:
             wd_countrylabel = result['countryLabel']['value']
+
+            cldiff=  - ( 20 -  ( 20 * Levenshtein.jaro_winkler( unidecode.unidecode(ne_adm0name) ,  unidecode.unidecode(wd_countrylabel) )   ) )
+            #print( cldiff, ne_adm0name, wd_countrylabel )
+            _score+= cldiff  
+
         else:
             wd_countrylabel =''
 
