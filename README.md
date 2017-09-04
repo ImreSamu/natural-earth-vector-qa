@@ -34,6 +34,7 @@ _wd_match_f3_maybe.csv | maybe
 _wd_match_wikidataid_diffs.csv | data problems?  ne.wikidataid !=  best match 
 _wd_match_wikidataid_new.csv   | new wikidataids  
 _wd_match_wikidataid_validated.csv | validated wikidataids 
+_wd_match_validated_unicodename_diff |  validated, but the name can be updated 
 
 ### License:
 * Program license:  [License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

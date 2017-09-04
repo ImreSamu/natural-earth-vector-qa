@@ -37,6 +37,8 @@ export:
 	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_diffs;"      > _wd_match_wikidataid_diffs.csv
 	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_new;"        > _wd_match_wikidataid_new.csv
 	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_validated;"  > _wd_match_wikidataid_validated.csv
+	docker-compose run --rm nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_validated_unicodename_diff;" > _wd_match_validated_unicodename_diff.csv
+
 
 hun-testparallel:
 	docker-compose run --rm nearth_qa parallel -k -j5 python3 -u /osm/01_query_wikidata.py -filter_adm0name="Hungary"  -filter_parallel_id={} ::: 0 1 2 3 4 5 6 7 8 9

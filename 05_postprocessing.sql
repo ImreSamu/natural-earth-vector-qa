@@ -218,6 +218,18 @@ CREATE VIEW           _wd_match_wikidataid_validated AS
     FROM wd_match
     WHERE (_mstatus="F1_OK" or _mstatus="F2_GOOD") and _wikidata_status='EQ';
 
+DROP   VIEW IF EXISTS _wd_match_validated_unicodename_diff;
+CREATE VIEW           _wd_match_validated_unicodename_diff AS
+    SELECT ne_fid,ne_adm0name, ne_name, wd_label , wd_id_url, wd_sitelink_en  
+    FROM _wd_match_wikidataid_validated
+	WHERE _name_status="R13-Unidecode_equal";
+
+
+
+
+
+
+
 DROP   VIEW IF EXISTS _wd_match_geodataname_diffs;
 CREATE VIEW           _wd_match_geodataname_diffs AS
     SELECT *
