@@ -22,11 +22,11 @@ SELECT  * FROM  candidates LIMIT 4;
 SELECT  count(*) candidates_records FROM  candidates;
 
 
-.print ' indexing '
+.print 'STEP: indexing '
 CREATE INDEX IF NOT EXISTS  wd_index  ON wd ( ne_xid );
 
 
-.print  'STEP:  _temp_wd'
+.print  'STEP: _temp_wd'
 
 DROP TABLE IF EXISTS _temp_wd;
 CREATE TABLE _temp_wd AS
@@ -44,7 +44,7 @@ CREATE INDEX  _temp_wd_index  ON _temp_wd ( ne_xid, _score DESC );
 --
 ----------------------------------------------------------------------------------
 --
-.print  'STEP:  wd_maxscore'
+.print  'STEP: wd_maxscore'
 DROP TABLE IF EXISTS wd_maxscore;
 CREATE TABLE wd_maxscore AS
 SELECT *
@@ -68,7 +68,7 @@ CREATE UNIQUE INDEX  wd_maxscore_index  ON wd_maxscore ( ne_xid );
 --
 ------------------------------------------------------------------------
 --
-.print  'STEP:  wd_top3'
+.print  'STEP: wd_top3'
 DROP TABLE IF EXISTS wd_top3;
 CREATE TABLE wd_top3 AS
 
@@ -101,6 +101,7 @@ CREATE UNIQUE INDEX  wd_top3_index  ON wd_top3 ( ne_xid );
 
 
 
+
 .print  'STEP: wd_maxscore_top3'
 DROP TABLE IF EXISTS wd_maxscore_top3;
 CREATE TABLE  wd_maxscore_top3 AS
@@ -113,7 +114,7 @@ DROP INDEX IF EXISTS  wd_maxscore_top3_index;
 CREATE UNIQUE INDEX  wd_maxscore_top3_index  ON  wd_maxscore_top3 ( ne_xid );
 
 
-.print  'STEP:  wd_match'
+.print  'STEP: wd_match'
 
 DROP VIEW IF EXISTS wd_match;
 CREATE VIEW wd_match AS
@@ -177,7 +178,9 @@ FROM wd_maxscore_top3
 
 
 
-.print  'STEP:  _wd_match_'
+
+
+.print  'STEP: _wd_match_'
 
 DROP   VIEW IF EXISTS _wd_match_f1_ok;
 CREATE VIEW           _wd_match_f1_ok AS
@@ -196,7 +199,6 @@ CREATE VIEW           _wd_match_f3_maybe AS
     SELECT *
     FROM wd_match
     WHERE _mstatus="F3_MAYBE";
-
 
 DROP   VIEW IF EXISTS _wd_match_wikidataid_diffs;
 CREATE VIEW           _wd_match_wikidataid_diffs AS
@@ -218,8 +220,6 @@ CREATE VIEW           _wd_match_geodataname_diffs AS
     WHERE (_mstatus="F1_OK" or _mstatus="F2_GOOD") and _geonames_status='NE';
 
 
-
-
 DROP   TABLE IF EXISTS _1342_diffs ;
 CREATE TABLE          _1342_diffs AS
 SELECT candidates.fid, candidates.name, candidates.wd_wiki_id, 
@@ -229,7 +229,6 @@ LEFT JOIN wd_match  ON wd_match.ne_fid||wd_match.ne_name = candidates.fid||candi
 WHERE wd_match._score > 60  and  wd_wiki_id != wd_id and wd_match.wd_distance < 50 
 		and fid not in ( 1775 )
 ;
--- 259 ... 
 
 .print '  Problematic records by ADM0NAME'
 .print ' --------------------------------------'
@@ -237,7 +236,7 @@ select ne_adm0name, count(*) as n from wd_match where _score < 30 group by 1 hav
 .print 
 
 
-.print '  Problematic records by ADM0NAME'
+.print '  _mstatus FREQ '
 .print ' --------------------------------------'
 select _mstatus, count(*) as n from wd_match  group by 1  order by 1 ; 
 .print 
