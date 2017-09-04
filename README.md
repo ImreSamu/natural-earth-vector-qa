@@ -8,7 +8,7 @@ Work in progress ...
 
 ### Genereate ...
 
-* It is about  > 2 hour run time ...
+* It is about  > 2-3 hour run time ...
 * sytem req:   linux,  docker,  docker-compose
 
 
@@ -33,7 +33,7 @@ _wd_match_f2_good.csv | only the second class matches
 _wd_match_f3_maybe.csv | maybe
 _wd_match_wikidataid_diffs.csv | data problems?  ne.wikidataid !=  best match 
 _wd_match_wikidataid_new.csv   | new wikidataids  
-
+_wd_match_wikidataid_validated.csv | validated wikidataids 
 
 ### License:
 * Program license:  [License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
