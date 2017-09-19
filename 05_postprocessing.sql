@@ -63,7 +63,41 @@ ORDER BY  ne_xid
 DROP INDEX IF EXISTS wd_maxscore_index;
 CREATE UNIQUE INDEX  wd_maxscore_index  ON wd_maxscore ( ne_xid );
 
+
+.print  'STEP: wd_geonamesstatus__maxscore'
+DROP TABLE IF EXISTS wd_geonamesstatus__maxscore;
+CREATE TABLE wd_geonamesstatus__maxscore AS
+WITH geoeg AS (
+    SELECT ne_xid
+          ,wd_id   
+          ,_score 
+    FROM  wd 
+    WHERE _geonames_status ='EQ'
+)
+SELECT ne_xid
+      ,wd_id             AS _geonames_wd_id 
+      ,_score            AS _geonames_score
+FROM  geoeg qwd1
+WHERE ne_xid || '@' || wd_id  in
+    (
+        SELECT qwd2.ne_xid || '@' || qwd2.wd_id
+        FROM   geoeg qwd2
+        WHERE  qwd2.ne_xid = qwd1.ne_xid 
+        ORDER BY _score DESC
+        LIMIT 1
+    )
+ORDER BY  ne_xid
+;
+
+
+DROP INDEX IF EXISTS wd_geonamesstatus__maxscore_index;
+CREATE UNIQUE INDEX  wd_geonamesstatus__maxscore_index  ON wd_geonamesstatus__maxscore ( ne_xid );
+
 .print '------------'
+
+
+
+
 
 --
 ------------------------------------------------------------------------
@@ -106,23 +140,35 @@ CREATE UNIQUE INDEX  wd_top3_index  ON wd_top3 ( ne_xid );
 DROP TABLE IF EXISTS wd_maxscore_top3;
 CREATE TABLE  wd_maxscore_top3 AS
 SELECT *
+	,CASE
+			WHEN _geonames_wd_id !=''  THEN  "https://www.wikidata.org/wiki/"||_geonames_wd_id
+            ELSE  ""
+	END AS _geonames_wd_id_url
+
 	,CASE 
-       WHEN _top3_n=2 THEN  substr(_top3_wikidataid,instr(_top3_wikidataid,'#')+1 )
-       WHEN _top3_n=3 THEN  substr( 
+       WHEN _top3_n=2 THEN  "https://www.wikidata.org/wiki/"||substr(_top3_wikidataid,instr(_top3_wikidataid,'#')+1 )
+       WHEN _top3_n=3 THEN  "https://www.wikidata.org/wiki/"||substr( 
 		 substr(_top3_wikidataid,instr(_top3_wikidataid,'#')+1 )
 		,0
 		,instr( substr(_top3_wikidataid,instr(_top3_wikidataid,'#')+1 ),'#')
 	   )        
      ELSE '' 
-     END as _top2_wd_id
-	,CASE WHEN _top3_n>=3 THEN substr( 
+     END AS _top2_second_best_wd_id
+
+	,CASE WHEN _top3_n>=3 THEN "https://www.wikidata.org/wiki/"||substr( 
 		 substr(_top3_wikidataid,instr(_top3_wikidataid,'#')+1 )
 		,instr( substr(_top3_wikidataid,instr(_top3_wikidataid,'#')+1 ),'#')+1
 	 )
      ELSE '' 
-     END as _top3_wd_id	
+     END AS _top3_third_best_wd_id
+
 FROM wd_maxscore
-LEFT JOIN wd_top3 ON wd_maxscore.ne_xid = wd_top3.ne_xid
+LEFT JOIN wd_top3                       
+          ON wd_maxscore.ne_xid  =  wd_top3.ne_xid
+LEFT JOIN wd_geonamesstatus__maxscore   
+          ON wd_maxscore.ne_xid  =  wd_geonamesstatus__maxscore.ne_xid 
+             AND wd_maxscore.wd_id  !=  wd_geonamesstatus__maxscore._geonames_wd_id 
+             AND wd_geonamesstatus__maxscore._geonames_score > -500
 ORDER BY ne_xid
 ;
 DROP INDEX IF EXISTS  wd_maxscore_top3_index;
@@ -239,7 +285,7 @@ DROP   VIEW IF EXISTS _wd_match_wikidataid_new;
 CREATE VIEW           _wd_match_wikidataid_new AS
     SELECT *
     FROM wd_match
-    WHERE  (_mstatus!="F9_BAD" ) and _wikidata_status='Na';
+    WHERE  (_mstatus!="F9_BAD" ) and _wikidata_status='Na'  AND _geonames_wd_id IS NULL AND _top20percent_n=1 ;
 
 DROP   VIEW IF EXISTS _wd_match_wikidataid_validated;
 CREATE VIEW           _wd_match_wikidataid_validated AS
@@ -348,6 +394,15 @@ FROM wiki
 ORDER BY CAST( ne_fid as INTEGER )
 ;
 
+
+
+DROP   VIEW IF EXISTS _wd_match_wikidataid_update_01;
+CREATE VIEW           _wd_match_wikidataid_update_01 AS
+SELECT wd_match.*
+FROM wd_match
+WHERE  (_mstatus!="F9_BAD" ) 
+AND ne_xid in (  SELECT ne_xid FROM wiki_extended WHERE substr(_quick_status,1,4)='DEL-'  ) 
+;
 
 
 DROP VIEW IF EXISTS wiki_extended_countryname_diffs;

@@ -90,7 +90,8 @@ c.execute('''CREATE TABLE wd
                 wd_place_alternative_grp text,
                 wd_sitelink_en text,
                 wd_sitelink_es text,   
-                wd_sitelink_ru text,                                
+                wd_sitelink_ru text,  
+                wd_sitelink_zh text,                                                   
                 wd_sitelink_ceb text,
                 wd_label_ru text,                
                 wd_has_sistercity text,
@@ -131,7 +132,8 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
             (group_concat(distinct  ?placeLabelru ; separator = "#")        as ?placeLabelru)               
             (group_concat(distinct  ?sitelink_en  ; separator = "#")        as ?sitelink_en)
             (group_concat(distinct  ?sitelink_es  ; separator = "#")        as ?sitelink_es)  
-            (group_concat(distinct  ?sitelink_ru  ; separator = "#")        as ?sitelink_ru)                          
+            (group_concat(distinct  ?sitelink_ru  ; separator = "#")        as ?sitelink_ru)   
+            (group_concat(distinct  ?sitelink_zh  ; separator = "#")        as ?sitelink_zh)                                    
             (group_concat(distinct  ?sitelink_ceb ; separator = "#")        as ?sitelink_ceb)
             (group_concat(distinct  ?countryLabelx; separator = "#")        as ?countryLabel)
             (SAMPLE(?sistercity)                                            as ?sistercity_sample)
@@ -250,6 +252,8 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
                     #S5#     UNION  {?place p:P31/ps:P31               wd:Q1539014. }
 
 
+  
+
                     #S5#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q7830262.  }
                     #S5#     UNION  {?place p:P31/ps:P31               wd:Q7830262. }
 
@@ -283,40 +287,100 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
                     #S5#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q3788231.  }
                     #S5#     UNION  {?place p:P31/ps:P31               wd:Q3788231. }
 
-                    #S5#     UNION {
-                    #S5#      ?place (p:P31/wdt:P31/wdt:P279*) wd:Q486972 .
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q131596.    }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q5084.      }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q2514025    }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P36 ?capitalplace  }.
-                    #S5#     # FILTER(NOT EXISTS  { ?item rdfs:label ?lang_labelx. FILTER(LANG(?lang_labelx) = "en")  }).
-                    #S5#      ?place rdfs:label ?placeLabel_xru  FILTER (lang(?placeLabel_xru) = "ru").
-                    #S5#     }
-                    #S5#     UNION {
-                    #S5#      ?place p:P31/ps:P31  wd:Q486972.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q131596.    }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q5084.      }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q2514025    }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P36 ?capitalplace  }.
-                    #S5#      #FILTER(NOT EXISTS  { ?item rdfs:label ?lang_labelx. FILTER(LANG(?lang_labelx) = "en")  }).
-                    #S5#      ?place rdfs:label ?placeLabel_xru  FILTER (lang(?placeLabel_xru) = "ru").
-                    #S5#     }
-                    #S5#     UNION {
-                    #S5#      ?place p:P31/ps:P31/wdt:P279*  wd:Q486972.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q131596.    }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q5084.      }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q2514025    }.
-                    #S5#      FILTER NOT EXISTS  { ?place wdt:P36 ?capitalplace  }.
-                    #S5#      #FILTER(NOT EXISTS  { ?item rdfs:label ?lang_labelx. FILTER(LANG(?lang_labelx) = "en")  }).
-                    #S5#      ?place rdfs:label ?placeLabel_xru  FILTER (lang(?placeLabel_xru) = "ru").
-                    #S5#     }
+            # --- S6 -------------------
+
+                    #S6#            {?place p:P31/ps:P31/wdt:P279*     wd:Q6609799.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q6609799. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q3685430.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q3685430. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q2679157.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q2679157. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q2989470.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q2989470. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q6593035.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q6593035. }
 
 
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q43742.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q43742. }
 
-                    #S6#     FILTER EXISTS { ?place wdt:P190 ?sistercity_x.}
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q83020.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q83020. }
 
-                    #S7#     VALUES ?GeoNames_ID {"3383494"}
-                    #S7#     ?place wdt:P1566 ?GeoNames_ID.
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q2706302.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q2706302. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q482821.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q482821. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q2225003.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q2225003. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q133442.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q133442. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q1500350.  }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q1500350. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q16725943. }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q16725943. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q9316670. }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q9316670. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q1065118. }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q1065118. }
+                     
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q1289426. }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q1289426. }
+
+                    #S6#     UNION  {?place p:P31/ps:P31/wdt:P279*     wd:Q1336099. }
+                    #S6#     UNION  {?place p:P31/ps:P31               wd:Q1336099. }
+                                   
+                    #S6#     {
+                    #S6#      ?place (p:P31/wdt:P31/wdt:P279*) wd:Q486972 .
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q131596.    }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q5084.      }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q2514025    }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P36 ?capitalplace  }.
+                    #S6#     # FILTER(NOT EXISTS  { ?item rdfs:label ?lang_labelx. FILTER(LANG(?lang_labelx) = "en")  }).
+                    #S6#      ?place rdfs:label ?placeLabel_xru  FILTER (lang(?placeLabel_xru) = "ru").
+                    #S6#     }
+                    #S6#     UNION {
+                    #S6#      ?place p:P31/ps:P31  wd:Q486972.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q131596.    }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q5084.      }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q2514025    }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P36 ?capitalplace  }.
+                    #S6#      #FILTER(NOT EXISTS  { ?item rdfs:label ?lang_labelx. FILTER(LANG(?lang_labelx) = "en")  }).
+                    #S6#      ?place rdfs:label ?placeLabel_xru  FILTER (lang(?placeLabel_xru) = "ru").
+                    #S6#     }
+                    #S6#     UNION {
+                    #S6#      ?place p:P31/ps:P31/wdt:P279*  wd:Q486972.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q131596.    }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q5084.      }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P31 wd:Q2514025    }.
+                    #S6#      FILTER NOT EXISTS  { ?place wdt:P36 ?capitalplace  }.
+                    #S6#      #FILTER(NOT EXISTS  { ?item rdfs:label ?lang_labelx. FILTER(LANG(?lang_labelx) = "en")  }).
+                    #S6#      ?place rdfs:label ?placeLabel_xru  FILTER (lang(?placeLabel_xru) = "ru").
+                    #S6#     }
+
+                    #S7#     FILTER EXISTS { ?place wdt:P190 ?sistercity_x.}
+
+                    #S8#     VALUES ?GeoNames_ID {"3383494"}
+                    #S8#     ?place wdt:P1566 ?GeoNames_ID.
+
+                    #S9#      VALUES ?searchnames {"#ne_name#"@en "#ne_name#"@es "#ne_name#"@sv 
+                    #S9#                           "#ne_name#"@de "#ne_name#"@fr "#ne_name#"@pt 
+                    #S9#                           "#ne_name#"@it "#ne_name#"@da "#ne_name#"@pl
+                    #S9#                           "#ne_name#"@cz "#ne_name#"@sk "#ne_name#"@hu
+                    #S9#                           "#ne_name#"@lt "#ne_name#"@et "#ne_name#"@lv                    
+                    #S9#                           "#ne_name#"@no "#ne_name#"@nl "#ne_name#"@fi  }  
+                    #S9#      ?place rdfs:label ?searchnames .
 
                     SERVICE wikibase:around {     # "#ne_name#" , "#ne_adm0name#"
                         ?place wdt:P625 ?location.
@@ -338,7 +402,8 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
             OPTIONAL {?place wdt:P1082     ?population.}
             OPTIONAL {?sitelink_en  schema:about ?place . ?sitelink_en schema:isPartOf  <https://en.wikipedia.org/>.}
             OPTIONAL {?sitelink_es  schema:about ?place . ?sitelink_es schema:isPartOf  <https://es.wikipedia.org/>.}  
-            OPTIONAL {?sitelink_ru  schema:about ?place . ?sitelink_ru schema:isPartOf  <https://ru.wikipedia.org/>.}                        
+            OPTIONAL {?sitelink_ru  schema:about ?place . ?sitelink_ru schema:isPartOf  <https://ru.wikipedia.org/>.}   
+            OPTIONAL {?sitelink_zh  schema:about ?place . ?sitelink_zh schema:isPartOf  <https://zh.wikipedia.org/>.}                                  
             OPTIONAL {?sitelink_ceb schema:about ?place . ?sitelink_ceb schema:isPartOf <https://ceb.wikipedia.org/>.}
             OPTIONAL {?place skos:altLabel ?place_alternative   FILTER((LANG(?place_alternative)) = "en").}
         }
@@ -364,6 +429,10 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
         q=q.replace('#S6#','')    
     elif _step==7:
         q=q.replace('#S7#','')
+    elif _step==8:
+        q=q.replace('#S8#','')
+    elif _step==9:
+        q=q.replace('#S9#','')                
     else:
         print("Internal error, _step: ", _step )
         sys.exit(1)
@@ -383,9 +452,13 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
         elif _step==5:
             search_distance=50
         elif _step==6:
-            search_distance=50            
+            search_distance=50
         elif _step==7:
+            search_distance=50                        
+        elif _step==8:
             search_distance=1200
+        elif _step==9:
+            search_distance=100
 
     else:
         if   _step==1:
@@ -401,7 +474,12 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
         elif _step==6:
             search_distance=100
         elif _step==7:
+            search_distance=100            
+        elif _step==8:
             search_distance=1200
+        elif _step==9:
+            search_distance=100
+
 
     print("_step:",_step , "    search_distance=", search_distance)
 
@@ -558,30 +636,36 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
         else:
             wd_sitelink_es=''
 
-        if wd_sitelink_es != '' and  wd_sitelink_en == '':
-                _score+= 100
-
-
         if 'sitelink_ru' in result:
             wd_sitelink_ru = result['sitelink_ru']['value']
         else:
             wd_sitelink_ru=''
 
-        if wd_sitelink_ru != '' and  wd_sitelink_en == '':
-                _score+= 80
-
-
-
+        if 'sitelink_zh' in result:
+            wd_sitelink_zh = result['sitelink_zh']['value']
+        else:
+            wd_sitelink_zh=''
 
         if 'sitelink_ceb' in result:
             wd_sitelink_ceb = result['sitelink_ceb']['value']
 
         else:
             wd_sitelink_ceb=''
+ 
 
 
-        if (wd_sitelink_ceb != '') and  (wd_sitelink_en == '')  and  (wd_sitelink_es == '')  and  (wd_sitelink_ru == ''):
-            _score+=  -1000      # penalty for   only ceb import
+        if wd_sitelink_en == '':
+            if wd_sitelink_es != '':
+                _score+= 100
+            elif wd_sitelink_ru != '':
+                _score+= 80
+            elif wd_sitelink_zh != '':
+                _score+= 60
+            elif wd_sitelink_ceb != '':
+                _score+=  -1000        # penalty for   only ceb import
+
+
+
 
 
 
@@ -727,7 +811,7 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
             print("@@_score>120:" , ne_name , " :: ",  wd_id, wd_label, wd_description, wd_type )
 
 
-        c.execute("INSERT INTO wd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        c.execute("INSERT INTO wd VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
 
                         ne_fid,
@@ -748,7 +832,8 @@ def getwikidatacity(_step, list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_w
                         wd_place_alternative_grp,
                         wd_sitelink_en,
                         wd_sitelink_es,   
-                        wd_sitelink_ru,                                                
+                        wd_sitelink_ru,  
+                        wd_sitelink_zh,                                                                          
                         wd_sitelink_ceb,
                         wd_label_ru,
                         wd_has_sistercity,
@@ -883,10 +968,25 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
                 ne_namealt,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale)
             print('6:',len(rc6_list_wikidataid) , _maxscore6)
 
+            rc7_list_wikidataid , _maxscore7 =getwikidatacity(7, rc6_list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid,ne_name,
+                ne_namealt,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale)
+            print('7:',len(rc7_list_wikidataid) , _maxscore7)
+
+
             if ne_geonameid!='-1':
-                rc7_list_wikidataid , _maxscore7 =getwikidatacity(7, rc6_list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid,ne_name,
+                rc8_list_wikidataid , _maxscore8 =getwikidatacity(8, rc7_list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid,ne_name,
                     ne_namealt,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale)
-                print('7:',len(rc7_list_wikidataid) , _maxscore7)
+                print('8:',len(rc8_list_wikidataid) , _maxscore8)
+            else:
+                rc8_list_wikidataid = rc7_list_wikidataid
+                _maxscore8 = _maxscore7
+
+            if (_maxscore8 < 100)  or ne_adm0name in ('Russia','China','Kazakhstan')  :
+                rc9_list_wikidataid , _maxscore9 =getwikidatacity(9, rc8_list_wikidataid, ne_fid, ne_xid, ne_lon, ne_lat, ne_wikidataid,ne_name,
+                    ne_namealt,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale)
+                print('9:',len(rc9_list_wikidataid) , _maxscore9)
+
+
 
 print (' - End -')
 

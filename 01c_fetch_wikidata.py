@@ -80,22 +80,18 @@ c.execute('''CREATE TABLE wiki
                 ne_adm0name text ,
                 wd_countrylabel text,
 
-
                 ne_namealt text,
                 ne_nameascii text,
                 
                 ne_adm1name text ,
                 ne_ls_name text,
 
-      
-
-
                 wd_description text,
                 wd_type text,
 
                 ne_geonameid text,
                 wd_geonames_id_grp text,
-
+                _geonames_status text,
 
                 wd_place_alternative_grp text,
                 wd_place_name_en text,
@@ -122,7 +118,11 @@ c.execute('''CREATE TABLE wiki
                 ne_xid text,
                 ne_scalerank text,
                 ne_labelrank text,
-                ne_natscale text,                
+                ne_natscale text,    
+                ne_sov0name text,
+                ne_featurecla text,
+                ne_iso_a2 text,
+                ne_wof_id text,
                 ts timestamp,
                 _runtime float
             )
@@ -147,7 +147,8 @@ def get_sparql_numvalue(result,id):
 
 def fetchwikidata( _step, list_wikidataid, ne_fid, ne_xid, ne_longitude, ne_latitude, ne_wikidataid, ne_name ,ne_namealt,
                   ne_nameascii, ne_adm0name,ne_adm1name,ne_ls_name,
-                  ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale):
+                  ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale,
+                  ne_sov0name,ne_featurecla,ne_iso_a2,ne_wof_id):
 
     query_template="""
     
@@ -339,9 +340,14 @@ def fetchwikidata( _step, list_wikidataid, ne_fid, ne_xid, ne_longitude, ne_lati
         wd_distance = float( get_sparql_numvalue(result,'distance') )      
         wd_location = get_sparql_value(result,'location')
   
+        if ne_geonameid != '' and ('#'+ne_geonameid+'#' in wd_geonames_id_grp)  :
+            _geonames_status='EQ'
+        elif ne_geonameid != '' and ne_geonameid != '-1' and wd_geonames_id_grp!='##' and ('#'+ne_geonameid+'#' not in wd_geonames_id_grp)  :
+            _geonames_status='NE'
+        else:
+            _geonames_status='Na'
 
-
-        c.execute("INSERT INTO wiki VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        c.execute("INSERT INTO wiki VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
 
                         ne_fid,
@@ -362,7 +368,7 @@ def fetchwikidata( _step, list_wikidataid, ne_fid, ne_xid, ne_longitude, ne_lati
 
                         ne_geonameid,
                         wd_geonames_id_grp,
-
+                        _geonames_status,
                         wd_place_alternative_grp,
                         wd_place_name_en,
                         wd_place_name_de,
@@ -389,6 +395,10 @@ def fetchwikidata( _step, list_wikidataid, ne_fid, ne_xid, ne_longitude, ne_lati
                         ne_scalerank,
                         ne_labelrank,
                         ne_natscale,
+                        ne_sov0name,
+                        ne_featurecla,
+                        ne_iso_a2,
+                        ne_wof_id,
                         ts,
                         _runtime
             ))
@@ -423,6 +433,9 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
             ne_adm1name=pt['properties']['ADM1NAME']
             ne_ls_name=pt['properties']['LS_NAME']
             ne_geonameid=str(pt['properties']['GEONAMEID']).split('.')[0]
+
+            ne_featurecla=pt['properties']['FEATURECLA']
+            ne_sov0name=pt['properties']['SOV0NAME']
 
             ne_adm0_a3=pt['properties']['ADM0_A3']
             ne_iso_a2=pt['properties']['ISO_A2']
@@ -465,7 +478,8 @@ with fiona.open('./natural-earth-vector/10m_cultural/ne_10m_populated_places.shp
             print(i, ne_xid , ne_scalerank , ne_wikidataid )
 
             fetchwikidata(1, list_wikidataid, ne_fid, ne_xid, ne_longitude, ne_latitude, ne_wikidataid,ne_name,
-                     ne_namealt,ne_nameascii,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale)
+                     ne_namealt,ne_nameascii,ne_adm0name,ne_adm1name,ne_ls_name,ne_geonameid, ne_scalerank,ne_labelrank,ne_natscale,
+                     ne_sov0name,ne_featurecla,ne_iso_a2,ne_wof_id)
 
 print (' - End -')
 

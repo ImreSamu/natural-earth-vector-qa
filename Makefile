@@ -55,6 +55,9 @@ test-qusmuryn:
 test-esperanza:
 	docker-compose run --rm -T nearth_qa python3 /osm/01_query_wikidata.py  -filter_name="Esperanza"
 
+test-fulin:
+	docker-compose run --rm -T nearth_qa python3 /osm/01_query_wikidata.py  -filter_name="Fulin"
+
 
 # no english - espanole
 test-villa-rumipal:
@@ -87,6 +90,8 @@ test-mexico:
 test-argentina:
 	docker-compose run --rm -T nearth_qa python3 /osm/01_query_wikidata.py  -filter_adm0name="Argentina"
 
+test-china:
+	docker-compose run --rm -T nearth_qa python3 /osm/01_query_wikidata.py  -filter_adm0name="China"
 
 postprocessing:
 	docker-compose run --rm  nearth_qa sqlite3  -batch wikidata_naturalearth_qa.db < 05_postprocessing.sql
@@ -102,6 +107,7 @@ runparallel:
 	docker-compose run --rm -T nearth_qa sqlite3 wikidata_naturalearth_qa.db < 05_postprocessing.sql
 
 export:
+	docker-compose run --rm -T nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM _wd_match_wikidataid_update_01"   > _wd_match_wikidataid_update_01.csv
 	docker-compose run --rm -T nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM wiki_extended;"           		   > _wiki_extended.csv
 	docker-compose run --rm -T nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM wiki_extended_countryname_diffs;" > _wiki_extended_countryname_diffs.csv
 	docker-compose run --rm -T nearth_qa sqlite3 -header -csv wikidata_naturalearth_qa.db "SELECT * FROM wd_match;"           			   > _wd_match.csv
@@ -161,9 +167,6 @@ test-kazakhstan:
 test-congo_kinshasa:
 	docker-compose run --rm -T nearth_qa python3 /osm/01_query_wikidata.py  -filter_adm0name="Congo (Kinshasa)"
 
-
-
-
 #Malaysia
 #Mauritania
 #Ivory Coast
@@ -182,6 +185,13 @@ run_all_russia:
 	docker-compose run --rm -T nearth_qa parallel --res _log_fetch_wikidata  --halt now,fail=1 -k -j5 python3 -u /osm/01c_fetch_wikidata.py -filter_adm0name="Russia"  -filter_parallel_id={} ::: 0 1 2 3 4 5 6 7 8 9
 	docker-compose run --rm  nearth_qa /osm/03_merge.sh
 	docker-compose run --rm  nearth_qa sqlite3  -batch wikidata_naturalearth_qa.db < 05_postprocessing.sql
+
+run_all_china:
+	docker-compose run --rm -T nearth_qa parallel --res _log_query_wikidata  --halt now,fail=1 -k -j5 python3 -u /osm/01_query_wikidata.py  -filter_adm0name="China"  -filter_parallel_id={} ::: 0 1 2 3 4 5 6 7 8 9
+	docker-compose run --rm -T nearth_qa parallel --res _log_fetch_wikidata  --halt now,fail=1 -k -j5 python3 -u /osm/01c_fetch_wikidata.py -filter_adm0name="China"  -filter_parallel_id={} ::: 0 1 2 3 4 5 6 7 8 9
+	docker-compose run --rm  nearth_qa /osm/03_merge.sh
+	docker-compose run --rm  nearth_qa sqlite3  -batch wikidata_naturalearth_qa.db < 05_postprocessing.sql
+
 
 run_all_congo_kinshasa:
 	docker-compose run --rm -T nearth_qa parallel --res _log_query_wikidata  --halt now,fail=1 -k -j5 python3 -u /osm/01_query_wikidata.py  -filter_adm0name="Congo (Kinshasa)"  -filter_parallel_id={} ::: 0 1 2 3 4 5 6 7 8 9
